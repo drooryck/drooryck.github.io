@@ -195,33 +195,43 @@
     requestAnimationFrame(function () { requestAnimationFrame(function () { document.body.classList.remove("preload"); }); });
   })();
 
-  // Extend three edges from the photo across the page, in the photo's own
-  // (u, v) coordinates, 0..1 across the square image:
-  //   window top edge:      v = 0.178 + 0.034 u
-  //   window right edge:    u = 0.607 - 0.040 v
-  //   lit-wall left edge:   u = 0.902 - 0.040 v
-  // Below the top edge and left of the window edge is a touch darker; above it
-  // and right of the lit-wall edge is a touch lighter.
+  // Extend four edges of the photo across the page. Each was fitted to the
+  // photo at sub-pixel precision (50% luminance crossing, robust line fit,
+  // anchored where the edge leaves the frame), in the photo's own (u, v)
+  // coordinates, 0..1 across the square image:
+  //   window top edge:        v = 0.17747 + 0.03542 u
+  //   window right edge:      u = 0.60663 - 0.03817 v
+  //   lit strip, left edge:   u = 0.89724 - 0.06200 v
+  //   lit strip, bottom edge: v = 0.17100 + 0.02782 u
+  // Below the window top and left of the window edge is a touch darker; right
+  // of the lit strip and above its bottom edge is a touch lighter.
   (function () {
     var img = document.getElementById("photo"), molding = document.getElementById("molding");
     var shade = document.querySelector("#quads .shade"), light = document.querySelector("#quads .light");
+    var winTop = [0.17747, 0.03542], winRight = [0.60663, -0.03817];
+    var litLeft = [0.89724, -0.06200], litBottom = [0.17100, 0.02782];
     function draw() {
-      var r = img.getBoundingClientRect();
-      if (!r.width) return;
+      var b = img.getBoundingClientRect();
+      if (!b.width) return;
+      // Browsers paint the image snapped to whole device pixels; do the same,
+      // or the photo and the background edges drift apart by a fraction.
+      var dpr = window.devicePixelRatio || 1;
+      var snap = function (v) { return Math.round(v * dpr) / dpr; };
+      var r = { left: snap(b.left), top: snap(b.top) };
+      r.width = snap(b.right) - r.left; r.height = snap(b.bottom) - r.top;
       var W = window.innerWidth, H = Math.max(window.innerHeight, document.documentElement.scrollHeight);
       var top = molding.getBoundingClientRect().top + 12;
-      var s = r.width;
-      var yH = function (x) { return r.top + s * (0.178 + 0.034 * (x - r.left) / s); };
-      var xV = function (c, y) { return r.left + s * (c - 0.040 * (y - r.top) / s); };
-      // Intersection of the top edge with a near-vertical edge u = c - d v.
-      var meet = function (c) {
-        var u = (c - 0.040 * 0.178) / (1 + 0.040 * 0.034), v = 0.178 + 0.034 * u;
-        return [r.left + s * u, r.top + s * v];
+      // Page y on a near-horizontal edge v = a + b u, at page x; and page x on
+      // a near-vertical edge u = a + b v, at page y.
+      var yOn = function (e, x) { return r.top + r.height * (e[0] + e[1] * (x - r.left) / r.width); };
+      var xOn = function (e, y) { return r.left + r.width * (e[0] + e[1] * (y - r.top) / r.height); };
+      var meet = function (h, v) {
+        var u = (v[0] + v[1] * h[0]) / (1 - v[1] * h[1]);
+        return [r.left + r.width * u, r.top + r.height * (h[0] + h[1] * u)];
       };
-      var p1 = meet(0.607), p2 = meet(0.902);
-      var pt = function (x, y) { return x.toFixed(1) + "," + y.toFixed(1); };
-      shade.setAttribute("d", "M" + [pt(0, yH(0)), pt(p1[0], p1[1]), pt(xV(0.607, H), H), pt(0, H)].join("L") + "Z");
-      light.setAttribute("d", "M" + [pt(p2[0], p2[1]), pt(xV(0.902, top), top), pt(W, top), pt(W, yH(W))].join("L") + "Z");
+      var pt = function (p) { return p[0].toFixed(2) + "," + p[1].toFixed(2); };
+      shade.setAttribute("d", "M" + [[0, yOn(winTop, 0)], meet(winTop, winRight), [xOn(winRight, H), H], [0, H]].map(pt).join("L") + "Z");
+      light.setAttribute("d", "M" + [meet(litBottom, litLeft), [xOn(litLeft, top), top], [W, top], [W, yOn(litBottom, W)]].map(pt).join("L") + "Z");
     }
     draw();
     img.addEventListener("load", draw);
