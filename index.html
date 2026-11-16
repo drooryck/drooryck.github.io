@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dries Rooryck</title>
+<meta name="author" content="Dries Rooryck">
+<meta name="description" content="Dries Rooryck. Harvard undergrad researching how neural networks acquire and process language.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+<script>
+  // Set the theme before first paint so there is no flash.
+  (function () {
+    var t = null;
+    try { t = localStorage.getItem("theme"); } catch (e) {}
+    if (t !== "light" && t !== "dark") {
+      t = window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    }
+    document.documentElement.setAttribute("data-theme", t);
+  })();
+</script>
+<style>
+  :root {
+    --bg: #fafafa;
+    --bg-shade: #f2f2f1;      /* the window quadrant */
+    --bg-light: #ffffff;      /* the lit-wall quadrant */
+    --text: #000;
+    --text-light: #828282;
+    --theme: #7d43c6;         /* purple */
+    --molding: #b9a3d6;
+    --sketch-shadow: rgba(80, 50, 120, .28);
+    --fade: .7s ease;
+  }
+  :root[data-theme="dark"] {
+    --bg: #1c1c1d;
+    --bg-shade: #171718;
+    --bg-light: #222224;
+    --text: #e8e8e8;
+    --text-light: #828282;
+    --theme: #f29a3f;         /* orange */
+    --molding: #8f6a45;
+    --sketch-shadow: rgba(242, 154, 63, .30);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  html { color-scheme: light; }
+  :root[data-theme="dark"] { color-scheme: dark; }
+  body {
+    min-height: 100dvh;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    font-weight: 300;
+    font-size: 1rem;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  body, a, .molding, .sw, #quads path {
+    transition: color var(--fade), background-color var(--fade), fill var(--fade), stroke var(--fade);
+  }
+  .preload, .preload * { transition: none !important; }
+
+  a { color: var(--theme); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  .container { width: 100%; max-width: 930px; margin: 0 auto; padding: 0 15px; }
+
+  /* Background quadrants traced from the lines in the photo (see script). */
+  #quads { position: fixed; inset: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
+  #quads .shade { fill: var(--bg-shade); }
+  #quads .light { fill: var(--bg-light); }
+
+  /* ---------- nav (al-folio style) ---------- */
+  nav { display: flex; justify-content: flex-end; align-items: center; height: 56px; }
+  nav ul { list-style: none; margin: 0; padding: 0; display: flex; align-items: center; }
+  nav a { display: block; padding: .5rem; color: var(--text); }
+  nav a:hover { color: var(--theme); text-decoration: none; }
+  nav .active a { color: var(--theme); font-weight: bolder; }
+
+  /* Molding: fixed volute caps + a stretchy middle, so it rescales cleanly. */
+  .molding { display: flex; height: 24px; margin-top: -6px; color: var(--molding); }
+  .molding svg { display: block; height: 24px; overflow: visible; }
+  .molding .cap { width: 24px; flex: none; }
+  .molding .cap.r { transform: scaleX(-1); }
+  .molding .run { flex: 1; width: 100%; }
+  .molding path, .molding line { fill: none; stroke: currentColor; stroke-width: 1.1; stroke-linecap: round; }
+
+  /* ---------- sketched rocker switch ---------- */
+  .switch {
+    appearance: none; border: 0; background: none; padding: 0 0 0 .6rem; margin: 0;
+    cursor: pointer; color: var(--molding); -webkit-tap-highlight-color: transparent; display: block;
+  }
+  .switch svg { display: block; width: 40px; height: 26px; overflow: visible; }
+  .switch:focus-visible { outline: none; }
+  .switch:focus-visible svg { outline: 1.5px solid var(--theme); outline-offset: 3px; border-radius: 4px; }
+  .sw { fill: none; stroke: currentColor; stroke-width: 1.1; stroke-linejoin: round; stroke-linecap: round; }
+  .seam { stroke-width: .8; opacity: .55; }
+  .shadow { transition: opacity .35s ease; }
+  /* Light mode: left half of the rocker pressed in. Dark mode: right half. */
+  .shadow.r { opacity: 0; }
+  [data-theme="dark"] .shadow.l { opacity: 0; }
+  [data-theme="dark"] .shadow.r { opacity: 1; }
+  .switch:active .shadow { transition-duration: .15s; }
+
+  /* ---------- about ---------- */
+  main.container { padding-top: 3.2rem; padding-bottom: 2rem; }
+  h1 { font-size: 2.5rem; font-weight: 300; line-height: 1.2; margin: 0 0 .25rem; }
+  h1 b { font-weight: 700; }
+  .desc { color: var(--text-light); margin: 0 0 1.5rem; }
+  .desc .ipa { font-family: system-ui, -apple-system, "Segoe UI", "Noto Sans", sans-serif; font-weight: 300; }
+  .profile { float: right; width: 30%; margin: 0 0 1rem 1rem; }
+  .profile img { display: block; width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: .25rem;
+    box-shadow: 0 2px 5px 0 rgba(0,0,0,.16), 0 2px 10px 0 rgba(0,0,0,.12); }
+  p { margin: 0 0 1rem; }
+  .clearfix::after { content: ""; display: table; clear: both; }
+
+  @media (max-width: 575px) {
+    body { font-size: .95rem; }
+    nav { height: 50px; }
+    main.container { padding-top: 1.6rem; }
+    h1 { font-size: 2rem; }
+    .desc { margin-bottom: 1.1rem; font-size: .9rem; }
+    .profile { width: 40%; margin-left: .8rem; }
+  }
+</style>
+</head>
+<body class="preload">
+  <svg id="quads" aria-hidden="true"><path class="shade"/><path class="light"/></svg>
+
+  <header class="container">
+    <nav>
+      <ul>
+        <li class="active"><a href="/">about</a></li>
+        <li><a href="cv.pdf">cv</a></li>
+        <li>
+          <button class="switch" id="switch" type="button" aria-label="Toggle dark mode" aria-pressed="false">
+            <svg viewBox="0 0 40 26">
+              <defs>
+                <linearGradient id="gl" x1="0" x2="1"><stop offset="0" stop-color="var(--sketch-shadow)" stop-opacity="0"/><stop offset="1" stop-color="var(--sketch-shadow)"/></linearGradient>
+                <linearGradient id="gr" x1="1" x2="0"><stop offset="0" stop-color="var(--sketch-shadow)" stop-opacity="0"/><stop offset="1" stop-color="var(--sketch-shadow)"/></linearGradient>
+              </defs>
+              <rect class="sw" x="1" y="1" width="38" height="24" rx="3.5"/>
+              <rect class="shadow l" x="8" y="7" width="12" height="12" fill="url(#gl)"/>
+              <rect class="shadow r" x="20" y="7" width="12" height="12" fill="url(#gr)"/>
+              <rect class="sw" x="8" y="7" width="24" height="12" rx="1.5"/>
+              <line class="sw seam" x1="20" y1="8.5" x2="20" y2="17.5"/>
+            </svg>
+          </button>
+        </li>
+      </ul>
+    </nav>
+    <div class="molding" id="molding" aria-hidden="true">
+      <svg class="cap l" viewBox="0 0 24 24">
+        <path d="M24 9.5 H13 C8 9.5 5.2 7.2 5.6 4.6 C6 2.2 9.2 1.6 10.3 3.5 C11.2 5.1 9.6 6.5 8.4 5.6"/>
+        <path d="M24 14.5 H13 C8 14.5 5.2 16.8 5.6 19.4 C6 21.8 9.2 22.4 10.3 20.5 C11.2 18.9 9.6 17.5 8.4 18.4"/>
+        <path d="M24 12 H11.5"/>
+      </svg>
+      <svg class="run" viewBox="0 0 100 24" preserveAspectRatio="none">
+        <line x1="0" y1="9.5" x2="100" y2="9.5" vector-effect="non-scaling-stroke" stroke-linecap="butt"/>
+        <line x1="0" y1="12" x2="100" y2="12" vector-effect="non-scaling-stroke" stroke-linecap="butt"/>
+        <line x1="0" y1="14.5" x2="100" y2="14.5" vector-effect="non-scaling-stroke" stroke-linecap="butt"/>
+      </svg>
+      <svg class="cap r" viewBox="0 0 24 24">
+        <path d="M24 9.5 H13 C8 9.5 5.2 7.2 5.6 4.6 C6 2.2 9.2 1.6 10.3 3.5 C11.2 5.1 9.6 6.5 8.4 5.6"/>
+        <path d="M24 14.5 H13 C8 14.5 5.2 16.8 5.6 19.4 C6 21.8 9.2 22.4 10.3 20.5 C11.2 18.9 9.6 17.5 8.4 18.4"/>
+        <path d="M24 12 H11.5"/>
+      </svg>
+    </div>
+  </header>
+
+  <main class="container">
+    <h1><b>Dries</b> Rooryck</h1>
+    <p class="desc"><span class="ipa">/driːs ˈrɔːrɪk/</span> &middot; dreece roar-ick</p>
+    <div class="clearfix">
+      <div class="profile"><img id="photo" src="dries.jpg" alt="Dries Rooryck at a laptop"></div>
+      <p>I'm a fourth-year undergrad at <a href="https://www.harvard.edu/">Harvard University</a>, where I am advised by <a href="https://dmelis.github.io/">David Alvarez-Melis</a> and <a href="https://www.glicko.net/">Mark Glickman</a>.</p>
+      <p>I research how neural networks acquire and process language. Check out my recent paper on how <a href="https://arxiv.org/abs/2609.30535">code-switching curricula cause cross-lingual convergence</a> of representations across languages. Or check out my thesis on statistically principled LLM evaluation.</p>
+      <p>My email is dries (underscore) rooryck (at) college (dot) harvard (dot) edu. Or grab time with me <a href="https://calendly.com/dries_r/research-chat">here</a>.</p>
+    </div>
+  </main>
+
+<script>
+  (function () {
+    var root = document.documentElement, btn = document.getElementById("switch");
+    function sync() { btn.setAttribute("aria-pressed", root.getAttribute("data-theme") === "dark"); }
+    sync();
+    btn.addEventListener("click", function () {
+      var next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+      root.setAttribute("data-theme", next);
+      try { localStorage.setItem("theme", next); } catch (e) {}
+      sync();
+    });
+    requestAnimationFrame(function () { requestAnimationFrame(function () { document.body.classList.remove("preload"); }); });
+  })();
+
+  // Extend three edges from the photo across the page, in the photo's own
+  // (u, v) coordinates, 0..1 across the square image:
+  //   window top edge:      v = 0.178 + 0.034 u
+  //   window right edge:    u = 0.607 - 0.040 v
+  //   lit-wall left edge:   u = 0.902 - 0.040 v
+  // Below the top edge and left of the window edge is a touch darker; above it
+  // and right of the lit-wall edge is a touch lighter.
+  (function () {
+    var img = document.getElementById("photo"), molding = document.getElementById("molding");
+    var shade = document.querySelector("#quads .shade"), light = document.querySelector("#quads .light");
+    function draw() {
+      var r = img.getBoundingClientRect();
+      if (!r.width) return;
+      var W = window.innerWidth, H = Math.max(window.innerHeight, document.documentElement.scrollHeight);
+      var top = molding.getBoundingClientRect().top + 12;
+      var s = r.width;
+      var yH = function (x) { return r.top + s * (0.178 + 0.034 * (x - r.left) / s); };
+      var xV = function (c, y) { return r.left + s * (c - 0.040 * (y - r.top) / s); };
+      // Intersection of the top edge with a near-vertical edge u = c - d v.
+      var meet = function (c) {
+        var u = (c - 0.040 * 0.178) / (1 + 0.040 * 0.034), v = 0.178 + 0.034 * u;
+        return [r.left + s * u, r.top + s * v];
+      };
+      var p1 = meet(0.607), p2 = meet(0.902);
+      var pt = function (x, y) { return x.toFixed(1) + "," + y.toFixed(1); };
+      shade.setAttribute("d", "M" + [pt(0, yH(0)), pt(p1[0], p1[1]), pt(xV(0.607, H), H), pt(0, H)].join("L") + "Z");
+      light.setAttribute("d", "M" + [pt(p2[0], p2[1]), pt(xV(0.902, top), top), pt(W, top), pt(W, yH(W))].join("L") + "Z");
+    }
+    draw();
+    img.addEventListener("load", draw);
+    window.addEventListener("resize", draw);
+    if (document.fonts) document.fonts.ready.then(draw);
+    if (window.ResizeObserver) new ResizeObserver(draw).observe(document.body);
+  })();
+</script>
+</body>
+</html>
